@@ -12,13 +12,15 @@ const staticRoutes = [
   '/contact',
 ]
 
-const generateSite = () => {
+const checkDirectorySync = (directory) => {
   try {
-    fs.statSync('dist')
+    fs.statSync(directory)
   } catch (e) {
-    childProcess.execSync('mkdir -p dist')
+    childProcess.execSync(`mkdir -p ${directory}`)
   }
+}
 
+const generateSite = () => {
   const template = fs.readFileSync('./public/index.html', 'utf8')
 
   staticRoutes.forEach((location) => {
@@ -34,8 +36,9 @@ const generateSite = () => {
         `<div id="root">${rendered}</div>`
       )
 
-    const filename = location === '/' ? 'index' : location.replace('/', '')
-    fs.writeFileSync(`dist/${filename}.html`, fullRendered, 'utf8')
+    const path = `dist${location.replace('/', '')}/`
+    checkDirectorySync(path)
+    fs.writeFileSync(`${path}index.html`, fullRendered, 'utf8')
   })
 }
 
